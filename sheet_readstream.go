@@ -40,12 +40,7 @@ func (s *sheetReadStream) Cell(colIndex, rowIndex int) *Cell {
 	return &Cell{ml: data, sheet: s.sheetInfo}
 }
 
-func (s *sheetReadStream) Row(index int) *Row {
-	//if index from cached merged rows, then use it
-	if row, ok := s.mergedRows[index]; ok {
-		return row
-	}
-
+func (s *sheetReadStream) RowData(index int) *ml.Row {
 	//skip rows till required index
 	indexRef := index + 1
 	var data *ml.Row
@@ -73,8 +68,20 @@ func (s *sheetReadStream) Row(index int) *Row {
 		}
 	}
 
+	return data;
+}
+
+func (s *sheetReadStream) Row(index int) *Row {
+	//if index from cached merged rows, then use it
+	if row, ok := s.mergedRows[index]; ok {
+		return row
+	}
+
+	data := s.RowData(index)
+
 	//looks like there is no any data anymore, return empty row
 	if data == nil {
+		indexRef := index + 1
 		data = s.emptyDataRow(indexRef)
 	}
 
