@@ -71,6 +71,11 @@ func (s *sheetReadWrite) Row(index int) *Row {
 	}
 }
 
+func (s *sheetReadWrite) HasRow(index int) bool {
+	_, rows := s.Dimension()
+	return index < rows
+}
+
 //refreshRefs update refs for all rows/cells starting from row with 0-based index
 func (s *sheetReadWrite) refreshAllRefs(index int) {
 	for iRow, rowMax := index, len(s.ml.SheetData); iRow < rowMax; iRow++ {

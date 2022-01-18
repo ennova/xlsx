@@ -84,6 +84,11 @@ func (s *sheetReadStream) Row(index int) *Row {
 	}
 }
 
+func (s *sheetReadStream) HasRow(index int) bool {
+	_, rows := s.Dimension()
+	return index < rows
+}
+
 func (s *sheetReadStream) loadRow(start *xml.StartElement) bool {
 	if start.Name.Local == "row" {
 		row := &ml.Row{}

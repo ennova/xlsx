@@ -36,6 +36,8 @@ type Sheet interface {
 	Rows() RowIterator
 	//Row returns a row for 0-based index
 	Row(index int) *Row
+	//HasRow returns true if the row can be iterated to
+	HasRow(index int) bool
 	//Cols returns iterator for all cols of sheet
 	Cols() ColIterator
 	//Col returns a col for 0-based index

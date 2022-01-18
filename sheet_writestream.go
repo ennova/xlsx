@@ -125,6 +125,10 @@ func (s *sheetWriteStream) Row(index int) *Row {
 	}
 }
 
+func (s *sheetWriteStream) HasRow(index int) bool {
+	panic(errorNotSupportedWrite)
+}
+
 //afterCreate initializes a new sheet
 func (s *sheetWriteStream) afterCreate(name string) {
 	//register file

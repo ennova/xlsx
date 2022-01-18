@@ -16,17 +16,14 @@ type RowIterator interface {
 //rowIterator is object that holds required information for common row's iterator
 type rowIterator struct {
 	idx   int
-	max   int
 	sheet Sheet
 }
 
 var _ RowIterator = (*rowIterator)(nil)
 
 func newRowIterator(sheet Sheet) RowIterator {
-	_, rows := sheet.Dimension()
 	return &rowIterator{
 		idx:   -1,
-		max:   rows - 1,
 		sheet: sheet,
 	}
 }
@@ -39,5 +36,5 @@ func (i *rowIterator) Next() (int, *Row) {
 
 //HasNext returns true if there are rows to iterate or false in other case
 func (i *rowIterator) HasNext() bool {
-	return i.idx < i.max
+	return i.sheet.HasRow(i.idx + 1)
 }
