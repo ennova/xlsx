@@ -45,5 +45,5 @@ func (i *rangeIterator) Next() (cIdx int, rIdx int, cell *Cell) {
 
 //HasNext returns true if there are cells to iterate or false in other case
 func (i *rangeIterator) HasNext() bool {
-	return i.rIdx <= i.r.bounds.ToRow
+	return i.cIdx >= 0 && i.rIdx <= i.r.bounds.ToRow
 }

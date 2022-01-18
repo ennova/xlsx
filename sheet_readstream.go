@@ -113,9 +113,11 @@ func (s *sheetReadStream) loadRow(start *xml.StartElement) bool {
 		var width int
 		ignoreDimension := (s.sheetMode & SheetModeIgnoreDimension) != 0
 		if ignoreDimension {
-			lastCell := row.Cells[len(row.Cells) - 1]
-			lastCol, _ := lastCell.Ref.ToIndexes()
-			width = lastCol + 1
+			if len(row.Cells) > 0 {
+				lastCell := row.Cells[len(row.Cells) - 1]
+				lastCol, _ := lastCell.Ref.ToIndexes()
+				width = lastCol + 1
+			}
 		} else {
 			width, _ = s.Dimension()
 		}
