@@ -6,7 +6,6 @@ package xlsx
 
 import (
 	"encoding/xml"
-	"fmt"
 	"github.com/plandem/ooxml"
 	"github.com/plandem/xlsx/format/conditional"
 	"github.com/plandem/xlsx/internal/ml"
@@ -92,8 +91,17 @@ func (s *sheetReadStream) Row(index int) *Row {
 }
 
 func (s *sheetReadStream) HasRow(index int) bool {
-	_, rows := s.Dimension()
-	return index < rows
+	ignoreDimension := (s.sheetMode & SheetModeIgnoreDimension) != 0
+	if ignoreDimension {
+		// ensure we have iterated to at least the index
+		s.RowData(index);
+		// return true if we have a loaded row and it's on or after the index
+		indexRef := index + 1
+		return s.currentRow != nil && indexRef <= s.currentRow.Ref
+	} else {
+		_, rows := s.Dimension()
+		return index < rows
+	}
 }
 
 func (s *sheetReadStream) loadRow(start *xml.StartElement) bool {
@@ -102,7 +110,16 @@ func (s *sheetReadStream) loadRow(start *xml.StartElement) bool {
 		_ = s.stream.DecodeElement(row, start)
 
 		//expand row dimension to required width
-		width, _ := s.Dimension()
+		var width int
+		ignoreDimension := (s.sheetMode & SheetModeIgnoreDimension) != 0
+		if ignoreDimension {
+			lastCell := row.Cells[len(row.Cells) - 1]
+			lastCol, _ := lastCell.Ref.ToIndexes()
+			width = lastCol + 1
+		} else {
+			width, _ = s.Dimension()
+		}
+
 		cells := make([]*ml.Cell, width)
 		for _, c := range row.Cells {
 			//add cell info
@@ -148,10 +165,6 @@ func (s *sheetReadStream) afterOpen() {
 	ignoreDimension := (s.sheetMode & SheetModeIgnoreDimension) != 0
 	multiPhase := (s.sheetMode & SheetModeMultiPhase) != 0
 	conditionalsInited := false
-
-	if !multiPhase && ignoreDimension {
-		panic(fmt.Errorf("to ignore dimension, streaming should be multiphased"))
-	}
 
 	if stream, err := s.file.ReadStream(); err != nil {
 		panic(err)
